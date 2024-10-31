@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GovernanceToken is ERC20, Ownable {
-    constructor(uint256 initialSupply, address initialOwner) ERC20("Governance Token", "GOV") Ownable(initialOwner) {
+    constructor(uint256 initialSupply) ERC20("Governance Token", "GOV") Ownable(msg.sender) {
         _mint(msg.sender, initialSupply);
     }
 
