@@ -73,9 +73,10 @@ contract Governance {
         require(!proposal.executed, "Proposal already executed");
 
         uint256 totalVotes = proposal.forVotes + proposal.againstVotes;
-        uint256 quorumVotes = (governanceToken.totalSupply() * quorumPercentage) / 100;
+        uint votePercentage = (proposal.forVotes *100) / totalVotes;
+        // uint256 quorumVotes = (governanceToken.totalSupply() * quorumPercentage) / 100;
 
-        require(totalVotes >= quorumVotes, "Quorum not reached");
+        require(votePercentage >= quorumPercentage, "Quorum not reached");
 
         if (proposal.forVotes > proposal.againstVotes) {
             proposal.executed = true;

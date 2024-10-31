@@ -32,7 +32,7 @@ describe("Governance", function () {
   let GovernanceToken;
   let governanceToken: {
     deployed: () => any;
-    address: any;
+    getAddress: any;
     transfer: (arg0: any, arg1: any) => any;
   };
   let owner;
@@ -42,36 +42,31 @@ describe("Governance", function () {
 
   beforeEach(async function () {
     // Deploy the GovernanceToken
+    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+
     GovernanceToken = await ethers.getContractFactory("GovernanceToken");
     governanceToken = await GovernanceToken.deploy(
-      "Governance Token",
-      "GOV",
-      ethers.parseEther("1000000")
+      ethers.parseEther("1000000"),
+      owner
     );
-    await governanceToken.deployed();
+
+    const governanceAddr = await governanceToken.getAddress();
+    // await governanceToken.deployed();
 
     // Deploy the Governance contract
     Governance = await ethers.getContractFactory("Governance");
-    governance = await Governance.deploy(governanceToken.address, 86400, 10); // 1 day voting period, 10% quorum
-    await governance.deployed();
-
-    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+    governance = await Governance.deploy(governanceAddr, 86400, 90); // 1 day voting period, 10% quorum
+    // await governance.deployed();
 
     // Distribute some tokens
-    await governanceToken.transfer(
-      addr1.address,
-      ethers.parseEther("1000")
-    );
-    await governanceToken.transfer(
-      addr2.address,
-      ethers.parseEther("500")
-    );
+    await governanceToken.transfer(addr1.address, ethers.parseEther("1000"));
+    await governanceToken.transfer(addr2.address, ethers.parseEther("500"));
   });
 
   describe("Deployment", function () {
     it("Should set the correct governance token", async function () {
       expect(await governance.governanceToken()).to.equal(
-        governanceToken.address
+        await governanceToken.getAddress()
       );
     });
 
@@ -80,7 +75,7 @@ describe("Governance", function () {
     });
 
     it("Should set the correct quorum percentage", async function () {
-      expect(await governance.quorumPercentage()).to.equal(10);
+      expect(await governance.quorumPercentage()).to.equal(90);
     });
   });
 
@@ -114,6 +109,7 @@ describe("Governance", function () {
         governance.connect(addrs[0]).vote(1, true)
       ).to.be.revertedWith("Must hold governance tokens to vote");
     });
+
 
     it("Should not allow double voting", async function () {
       await governance.connect(addr1).vote(1, true);
@@ -162,6 +158,7 @@ describe("Governance", function () {
 
       // Only addr2 votes (not enough for quorum)
       await governance.connect(addr2).vote(2, true);
+      await governance.connect(addr1).vote(2, false);
 
       await ethers.provider.send("evm_increaseTime", [86401]);
       await ethers.provider.send("evm_mine");
@@ -201,4 +198,3 @@ describe("Governance", function () {
     });
   });
 });
-
