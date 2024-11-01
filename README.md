@@ -1,7 +1,7 @@
 # Token-Based-Governance
 
 ## Project Overview
-This project implements a decentralized governance system on the Ethereum blockchain, allowing users holding a custom ERC20 token to participate in decision-making by voting on proposals. Key features include proposal creation, voting mechanisms, quorum enforcement, and result tallying.
+This project implements a decentralized governance system on the Ethereum blockchain, allowing users holding a custom ERC20 token to participate in decision-making by voting on proposals.
 
 ## Features
 - **Custom ERC20 Token**: Only holders of this token can participate in governance.
