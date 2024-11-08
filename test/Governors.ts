@@ -30,6 +30,7 @@ describe("Governance", function () {
   let addrs: any[];
 
   beforeEach(async function () {
+    
     // Deploy the GovernanceToken
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
@@ -40,12 +41,12 @@ describe("Governance", function () {
     );
 
     const governanceAddr = await governanceToken.getAddress();
-    // await governanceToken.deployed();
+   
 
     // Deploy the Governance contract
     Governance = await ethers.getContractFactory("Governance");
     governance = await Governance.deploy(governanceAddr, 86400, 90); // 1 day voting period, 10% quorum
-    // await governance.deployed();
+   
 
     // Distribute some tokens
     await governanceToken.transfer(addr1.address, ethers.parseEther("1000"));
@@ -108,7 +109,7 @@ describe("Governance", function () {
     });
 
     it("Should not allow voting after the voting period", async function () {
-      await ethers.provider.send("evm_increaseTime", [86401]); // Increase time by 1 day + 1 second
+      await ethers.provider.send("evm_increaseTime", [86401]); 
       await ethers.provider.send("evm_mine");
 
       await expect(governance.connect(addr1).vote(1, true)).to.be.revertedWith(
@@ -125,7 +126,7 @@ describe("Governance", function () {
     });
 
     it("Should execute a proposal that passes", async function () {
-      await ethers.provider.send("evm_increaseTime", [86401]); // Increase time by 1 day + 1 second
+      await ethers.provider.send("evm_increaseTime", [86401]); 
       await ethers.provider.send("evm_mine");
 
       await expect(governance.executeProposal(1))
@@ -140,12 +141,13 @@ describe("Governance", function () {
     });
 
     it("Should not execute a proposal that doesn't reach quorum", async function () {
+      
       // Create a new proposal
       await governance
         .connect(addr1)
         .createProposal("Low Participation Proposal");
 
-      // Only addr2 votes (not enough for quorum)
+      
       await governance.connect(addr2).vote(2, true);
       await governance.connect(addr1).vote(2, false);
 
